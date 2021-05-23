@@ -73,7 +73,7 @@ public class websocket {//服务器只要写了注解，就会自动匹配对应的信息执行方法，可
     }
     
     @OnMessage
-    public void onMessage(Session session,String msg){//当收到消息时
+    public void onMessage(Session session,String msg,boolean last){//当收到消息时
     	//1.0升级版	2.0版本
     	Msg m = gson.fromJson(msg, Msg.class);
     	String str = gson.toJson(m);
@@ -120,6 +120,7 @@ public class websocket {//服务器只要写了注解，就会自动匹配对应的信息执行方法，可
     
     @OnMessage
     public void onMessage(Session session,byte[] inputStream,boolean last){
+    	//读取图片1.0版本   2.0版本：同时存入msg对象中 使用下面方法转换并发送
     	//读取流格式的方法，last为判断最后是否最后一次   last为后端websocket写的，不是我们传的。
     	
     	if(!last) {//每次传输的自接数组最大为8192

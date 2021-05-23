@@ -38,20 +38,22 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
         height: 30px;
     }
     #left{
-        background-color: salmon;
+        background-color: powderblue;
         width: 700px;
         height: 640px;
         float: left;
         position: relative;
     }
     #content{
-        background-color: silver;
+    	background-image: url(img/聊天室.jpg);
+    	background-size:100% 100%;
         width: 700px;
         height: 400px;
+        overflow-y: scroll;
         /*display: none;*/
     }
     #right{
-        background-color: rgb(107, 3, 3);
+        background-color: gold;
         width: 300px;
         height: 640px;
         float: right;
@@ -59,27 +61,40 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
     #hyList{
         height: 270px;
         overflow-y: scroll;
-        background: antiquewhite;
+        background-image: url(img/好友背景.jpg) ;
+        background-size:100% 100%;
     }
     #xtList{
         height: 270px;
         overflow-y: scroll;
         background: antiquewhite;
+        background-image: url(img/系统背景.jpg);
+        background-size:100% 100%;
     }
     #input{
         margin-bottom: 0px;
         position: absolute;
         bottom: 0px;
     }
+    .myfont{
+    	font-family: "楷体";
+    	font-size: 20px;
+    }
     #mes_left{
-        float: left;
+        padding-left: 0px;
         border: 2px aqua;
         max-width: 490px;
+       	vertical-align: bottom;
+        background-image: url(img/QQ-对方.png);
+        background-size:100% 100%;
     }
     #mes_right{
-        float: right;
+        padding-right: 0px;
         border: 2px aqua;
         max-width: 490px;
+        background-image: url(img/QQ-自己.png);
+        background-size:100% 100%;
+        vertical-align:middle
     }
     #hy{
         display: block;
@@ -90,6 +105,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
         border: none;
         outline: none
     }
+    .myabiaoqian{
+    	font-size: 25px;
+        color: red; 
+        text-decoration: none; 
+    }
     
 </style>
 </head>
@@ -98,12 +118,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <div id = "contains">
     <div id="username"><h3 style="text-align: center;">用户：${user.name } <span>-在线</span></h3></div>
     <div id="Inchat"></div>
-    <div id="left">
+    <div id="left" class="myfont">
         <div id="content" >
         
         </div>
         <div id="input">
-            <textarea type="text" id="input_text" style="width: 695px;height: 200px;"></textarea>
+        <!-- <div id="input_text" style="width: 700px;height: 300px;"></div> -->
+            <textarea type="text" class="myfont" id="input_text" style="width: 700px;height: 200px;"></textarea>
             <button id="submit" style="float: right;">发送</button>
             <input type="file" id="img" style="width:200px;	 heigh:30px";/>
             <button id="sendimg" style="float: left;" onclick="sendImg()">发送图片</button>
@@ -150,6 +171,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			button.addEventListener("click",function(){
 				var obj = new Object();
 				var value = input.value//获取输入框内容
+				if(value==""){
+					alert("请勿发送空消息")
+					return
+				}
 				obj.msg = value//发的信息
 				obj.type=1 //类型
 				obj.name="${user.name}"//发送人
@@ -167,37 +192,22 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					} else if (msg.type==1){//用户发送聊天的type
 						if(msg.toName==""){//如果msg的给用户发送的字段为空则是广播群聊
 							if(msg.name=="${user.name}"){
-								var d = new Date();//当前时间
-								var str ="<span id='mes_right'>用户"+ msg.name+"在"+d.toLocaleString()+"对所有人说：</span></br>"//mes_right 显示在右边
-								div.innerHTML+=str+"<span id='mes_right'>"+ msg.msg +"</span></br>";
-							} else {
-								var d = new Date();//当前时间
-								var str ="用户"+ msg.name+"在"+d.toLocaleString()+"对所有人说：</br>"
-								div.innerHTML+=str+msg.msg+"</br>";
+								liaotian(msg)
 							}
 						} else {//不为空就是有私聊的对象
-							if(msg.name=="${user.name}"){//如果是自己
-								var d = new Date();//当前时间
-								var str ="<span id='mes_right'>用户"+ msg.name+"在"+d.toLocaleString()+"对"+msg.toName+"说：</span></br>"
-								div.innerHTML+=str+"<span id='mes_right'>"+ msg.msg +"</span></br>";
-							} else {//不是自己
-								var d = new Date();//当前时间
-								var str ="用户"+ msg.name+"在"+d.toLocaleString()+"对你说：</br>"
-								div.innerHTML+=str+msg.msg+"</br>";
-							}
+							liaotian(msg)
 						}
-						
 					} else if(msg.type==2){//发送在线人数的type
 						var str = ""
 						var list = JSON.parse(msg.msg)
 						for(var i in list){
 							if(list[i]!="${user.name}"){
-							str+="<li><a href='javascript:void(0);' onclick=myname(this)>"+list[i]+"</a></li>"
+							str+="<li><a href='javascript:void(0);' onclick=myname(this) class='myabiaoqian'>"+list[i]+"</a></li>"
 							}
 						}
 						friend.innerHTML = str
 					}
-				} else {
+				} else {//如果不是string格式就执行这的方法
 					var reader = new FileReader();//new一个js里的对象  读成字节流
 					reader.onload = function loaded(evt){
 						if(evt.target.readyState == reader.DONE){
@@ -234,7 +244,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			})
 			
 			
-			function myname(name){
+			function myname(name){//把需要私聊的对象的名字赋值进hidden里
 				document.getElementById("siliao").value=name.innerHTML;
 				var obj = new Object();
 				obj.name="${user.name}"
@@ -244,21 +254,43 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				var str = JSON.stringify(obj);
 				socket.send(str);
   			}
-			function quxiao(){
+			function quxiao(){//取消群聊，清楚hidden里的值
 				document.getElementById("siliao").value=""
 			}
-			function sendImg(){
+			function sendImg(){//发送图片
 				var imgCont = $("#img")[0].files[0]//js对象变成jq对象  全选文件
 				if(imgCont){
 						var reader = new FileReader();//new一个js里的对象  读成字节流
 						reader.readAsArrayBuffer(imgCont);//把对象读成二进制格式
 						reader.onload = function loaded(evt){
-							socket.send(evt.target.result)//读出来的二进制流发送到后台   
+						socket.send(evt.target.result)//读出来的二进制流发送到后台   
+						
+						//var obj = new Object();
+						//obj.name="${user.name}"
+						//obj.type=1;
+						//var value = input.value//获取输入框内容
+						//obj.msg = value//发的信息
+						//input.value=""
+						//var str = JSON.stringify(obj)//转JSON格式
+						//socket.send(str)
+						
 						}
 						$("#img").val("");
 				}else {
+					alert("请选择图片再发送")
 					$("#img").val("");
 					return;
+				}
+			}
+			function liaotian(msg){//发送普通数据的方法
+				if(msg.name=="${user.name}"){
+					var d = new Date();//当前时间
+					var str ="<span id='mes_right'><strong>"+ msg.name+"</strong> 在"+d.toLocaleString()+"对所有人说：</span></br>"//mes_right 显示在右边
+					div.innerHTML+=str+"<span id='mes_right'>"+ msg.msg +"</span></br>";
+				} else {
+					var d = new Date();//当前时间
+					var str ="<strong>"+ msg.name+"</strong>在"+d.toLocaleString()+"对所有人说：</br>"
+					div.innerHTML+=str+msg.msg+"</br>";
 				}
 			}
 			
